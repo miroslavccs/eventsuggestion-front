@@ -57,5 +57,10 @@ export async function request<T>(method: string, path: string, body?: unknown): 
     throw new ApiError(res.status, await errorMessage(res));
   }
   if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+  try {
+    return (await res.json()) as T;
+  } catch {
+    // A 200 with an empty or non-JSON body means we are not talking to the backend (wrong EXPO_PUBLIC_API_URL).
+    throw new ApiError(res.status, `Unexpected response from ${API_URL}. Check that EXPO_PUBLIC_API_URL points at the backend.`);
+  }
 }

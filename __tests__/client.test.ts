@@ -66,6 +66,14 @@ describe('api client', () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
+  it('explains a 200 with an empty body (API URL pointing at the wrong server)', async () => {
+    fetchMock.mockReturnValue(respond(200));
+    await expect(request('POST', '/auth/login', {})).rejects.toMatchObject({
+      status: 200,
+      message: expect.stringMatching(/EXPO_PUBLIC_API_URL/),
+    });
+  });
+
   it('reports network failures as status 0', async () => {
     fetchMock.mockRejectedValue(new TypeError('Network request failed'));
     await expect(request('GET', '/x')).rejects.toMatchObject({ status: 0, message: expect.stringMatching(/cannot reach/i) });
