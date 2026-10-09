@@ -43,7 +43,7 @@ function ChipGroup({ title, options, selected, onChange }: { title: string; opti
       <T v="label">{title}</T>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
         {all.map((o) => (
-          <Chip key={o} label={o} selected={selected.includes(o)} onPress={() => onChange(toggle(selected, o))} />
+          <Chip key={o} tone="soft" label={o} selected={selected.includes(o)} onPress={() => onChange(toggle(selected, o))} />
         ))}
         {adding ? (
           <TextInput
@@ -55,7 +55,7 @@ function ChipGroup({ title, options, selected, onChange }: { title: string; opti
             placeholder="Type and press enter"
             accessibilityLabel={`Add to ${title}`}
             placeholderTextColor={colors.subtle}
-            style={{ height: 40, minWidth: 150, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.borderInput, fontFamily: fonts.body, fontSize: 15, color: colors.ink }}
+            style={{ height: 40, minWidth: 150, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.accentBorder, fontFamily: fonts.body, fontSize: 15, color: colors.ink }}
           />
         ) : (
           <Chip label="+ Add" dashed onPress={() => setAdding(true)} />
@@ -67,7 +67,7 @@ function ChipGroup({ title, options, selected, onChange }: { title: string; opti
 
 export function InterestsEditor({ value, onChange }: { value: InterestsValue; onChange: (next: InterestsValue) => void }) {
   const row = (title: string, hint: string, on: boolean, set: (v: boolean) => void) => (
-    <View style={{ flex: 1, minWidth: 240, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 14 }}>
+    <View style={{ flex: 1, minWidth: 240, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 14, backgroundColor: colors.surface }}>
       <View style={{ flex: 1 }}>
         <T v="strong">{title}</T>
         <T v="small">{hint}</T>

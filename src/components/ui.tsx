@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import type { ReactNode } from 'react';
 import {
@@ -13,7 +14,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { colors, fonts, radius } from '@/theme/tokens';
+import { colors, fonts, gradient, gradientStops, radius, shadows } from '@/theme/tokens';
 
 const tap = () => {
   if (Platform.OS !== 'web') void Haptics.selectionAsync();
@@ -25,9 +26,9 @@ const textStyles: Record<Variant, TextStyle> = {
   body: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.ink },
   muted: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.muted },
   small: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 18, color: colors.muted },
-  label: { fontFamily: fonts.bold, fontSize: 12, letterSpacing: 1, color: colors.muted },
+  label: { fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1.4, color: colors.subtle },
   strong: { fontFamily: fonts.bold, fontSize: 15, lineHeight: 22, color: colors.ink },
-  h1: { fontFamily: fonts.heading, fontSize: 34, lineHeight: 38, letterSpacing: -1, color: colors.ink },
+  h1: { fontFamily: fonts.headingXL, fontSize: 34, lineHeight: 38, letterSpacing: -1, color: colors.ink },
   h2: { fontFamily: fonts.heading, fontSize: 24, lineHeight: 28, letterSpacing: -0.5, color: colors.ink },
   h3: { fontFamily: fonts.heading, fontSize: 20, lineHeight: 24, color: colors.ink },
 };
@@ -36,7 +37,7 @@ export function T({ v = 'body', style, ...rest }: TextProps & { v?: Variant }) {
   return <Text {...rest} style={[textStyles[v], style]} />;
 }
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'accent';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'accent' | 'light';
 
 export function Button({
   label,
@@ -57,12 +58,14 @@ export function Button({
   large?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
+  // `accent` is kept as an alias so older call sites keep the primary look.
+  const kind = variant === 'accent' ? 'primary' : variant;
   const palette = {
-    primary: { bg: colors.ink, fg: colors.onInk, border: colors.ink, font: fonts.bold },
-    accent: { bg: colors.accent, fg: colors.onInk, border: colors.accent, font: fonts.bold },
-    secondary: { bg: colors.surface, fg: colors.ink, border: colors.borderInput, font: fonts.medium },
-    ghost: { bg: 'transparent', fg: colors.muted, border: 'transparent', font: fonts.medium },
-  }[variant];
+    primary: { fg: colors.onInk, border: 'transparent', font: fonts.bold, surface: [gradient(gradientStops.brand), shadows.brand] },
+    secondary: { fg: colors.ink, border: colors.border, font: fonts.bold, surface: [{ backgroundColor: colors.surface }] },
+    light: { fg: colors.ink, border: 'transparent', font: fonts.bold, surface: [{ backgroundColor: colors.surface }, shadows.card] },
+    ghost: { fg: colors.muted, border: 'transparent', font: fonts.medium, surface: [{ backgroundColor: 'transparent' }] },
+  }[kind];
   const off = disabled || loading;
   return (
     <Pressable
@@ -80,14 +83,14 @@ export function Button({
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
-          height: large ? 52 : 44,
-          paddingHorizontal: large ? 26 : 20,
+          height: large ? 54 : 44,
+          paddingHorizontal: large ? 28 : 20,
           borderRadius: radius.pill,
           borderWidth: 1,
-          backgroundColor: palette.bg,
           borderColor: palette.border,
-          opacity: off ? 0.5 : pressed ? 0.8 : 1,
+          opacity: off ? 0.5 : pressed ? 0.85 : 1,
         },
+        ...palette.surface,
         style,
       ]}
     >
@@ -104,12 +107,20 @@ export function Chip({
   selected,
   onPress,
   dashed,
+  dot,
+  tone = 'ink',
 }: {
   label: string;
   selected?: boolean;
   onPress?: () => void;
   dashed?: boolean;
+  /** Category colour shown as a small dot before the label. */
+  dot?: string;
+  /** `ink` = dark when selected (filters); `soft` = coral tint with a check (multi-select pickers). */
+  tone?: 'ink' | 'soft';
 }) {
+  const soft = tone === 'soft';
+  const fg = selected ? (soft ? colors.accent : colors.onInk) : dashed ? colors.muted : soft ? colors.muted : colors.ink;
   return (
     <Pressable
       accessibilityRole="button"
@@ -121,17 +132,21 @@ export function Chip({
       style={({ pressed }) => ({
         height: 40,
         paddingHorizontal: 16,
+        flexDirection: 'row',
+        gap: 8,
         borderRadius: radius.pill,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: selected ? colors.ink : colors.surface,
+        backgroundColor: selected ? (soft ? colors.accentSoft : colors.ink) : colors.surface,
         borderWidth: 1,
         borderStyle: dashed ? 'dashed' : 'solid',
-        borderColor: selected ? colors.ink : dashed ? colors.borderInput : colors.borderStrong,
-        opacity: pressed ? 0.8 : 1,
+        borderColor: selected ? (soft ? colors.accentBorder : colors.ink) : dashed ? colors.borderStrong : colors.border,
+        opacity: pressed ? 0.85 : 1,
       })}
     >
-      <Text style={{ fontFamily: fonts.medium, fontSize: 15, color: selected ? colors.onInk : dashed ? colors.muted : colors.ink }}>
+      {dot ? <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dot }} /> : null}
+      {soft && selected ? <Ionicons name="checkmark" size={14} color={colors.accent} /> : null}
+      <Text style={{ fontFamily: selected || !soft ? fonts.bold : fonts.medium, fontSize: 14, color: fg }}>
         {label}
       </Text>
     </Pressable>
@@ -148,11 +163,11 @@ export function Toggle({
   value: boolean;
   onValueChange: (next: boolean) => void;
   label: string;
-  /** Use the darker off-track when the toggle sits on the ink-colored panel. */
+  /** Use the darker off-track when the toggle sits on a dark panel. */
   onInk?: boolean;
   disabled?: boolean;
 }) {
-  const off = onInk ? colors.toggleOffOnInk : colors.borderInput;
+  const off = onInk ? colors.toggleOffOnInk : colors.toggleOff;
   return (
     <Pressable
       accessibilityRole="switch"
@@ -164,23 +179,25 @@ export function Toggle({
         tap();
         onValueChange(!value);
       }}
-      style={{
-        width: 52,
-        height: 30,
-        borderRadius: radius.pill,
-        backgroundColor: value ? colors.accent : off,
-        justifyContent: 'center',
-        opacity: disabled ? 0.5 : 1,
-      }}
+      style={[
+        {
+          width: 46,
+          height: 26,
+          borderRadius: radius.pill,
+          justifyContent: 'center',
+          opacity: disabled ? 0.5 : 1,
+        },
+        value ? gradient(gradientStops.brand) : { backgroundColor: off },
+      ]}
     >
       <View
         style={{
           position: 'absolute',
           top: 3,
-          left: value ? 25 : 3,
-          width: 24,
-          height: 24,
-          borderRadius: 12,
+          left: value ? 23 : 3,
+          width: 20,
+          height: 20,
+          borderRadius: 10,
           backgroundColor: '#FFFFFF',
         }}
       />
@@ -193,9 +210,29 @@ export function Card({ children, style }: { children: ReactNode; style?: StylePr
     <View
       style={[
         { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.card, padding: 22 },
+        shadows.card,
         style,
       ]}
     >
+      {children}
+    </View>
+  );
+}
+
+/** Gradient card (indigo hero by default) with two soft decorative glows, as in the mockups. */
+export function Hero({
+  children,
+  stops = gradientStops.hero,
+  style,
+}: {
+  children: ReactNode;
+  stops?: readonly [string, string];
+  style?: StyleProp<ViewStyle>;
+}) {
+  return (
+    <View style={[{ borderRadius: radius.hero, padding: 28, gap: 18, overflow: 'hidden' }, gradient(stops), shadows.night, style]}>
+      <View pointerEvents="none" style={{ position: 'absolute', right: -70, top: -90, width: 240, height: 240, borderRadius: 120, backgroundColor: colors.amber, opacity: 0.2 }} />
+      <View pointerEvents="none" style={{ position: 'absolute', right: 30, bottom: -70, width: 150, height: 150, borderRadius: 75, backgroundColor: colors.accent, opacity: 0.22 }} />
       {children}
     </View>
   );
@@ -208,7 +245,7 @@ export function Field({
 }: TextInputProps & { label: string; error?: string }) {
   return (
     <View style={{ gap: 6, flex: 1, minWidth: 200 }}>
-      <T v="strong" style={{ fontFamily: fonts.medium }}>
+      <T v="strong" style={{ fontFamily: fonts.bold, fontSize: 12, color: colors.muted }}>
         {label}
       </T>
       <TextInput
@@ -219,15 +256,15 @@ export function Field({
           {
             fontFamily: fonts.body,
             fontSize: 16,
-            minHeight: 44,
-            paddingHorizontal: 12,
-            borderRadius: 10,
+            minHeight: 50,
+            paddingHorizontal: 16,
+            borderRadius: radius.control,
             borderWidth: 1,
             borderColor: error ? colors.danger : colors.borderInput,
             color: colors.ink,
             backgroundColor: colors.surface,
           },
-          input.multiline ? { paddingVertical: 12, minHeight: 80, textAlignVertical: 'top' } : null,
+          input.multiline ? { paddingVertical: 14, minHeight: 88, textAlignVertical: 'top' } : null,
           input.style,
         ]}
       />
@@ -241,7 +278,7 @@ export function ErrorBanner({ message }: { message?: string | null }) {
   return (
     <View
       accessibilityRole="alert"
-      style={{ backgroundColor: '#FEF3F2', borderColor: '#FDA29B', borderWidth: 1, borderRadius: 12, padding: 12 }}
+      style={{ backgroundColor: '#FEF3F2', borderColor: '#FDA29B', borderWidth: 1, borderRadius: radius.control, padding: 14 }}
     >
       <T style={{ color: colors.danger }}>{message}</T>
     </View>

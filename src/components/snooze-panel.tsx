@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { Pressable, View } from 'react-native';
 
 import { ErrorBanner, Field, Button, T } from './ui';
@@ -30,10 +31,10 @@ export function SnoozePanel({
     alignItems: 'center' as const,
     minHeight: 48,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: active ? 2 : 1,
     borderStyle: dashed ? ('dashed' as const) : ('solid' as const),
-    borderColor: active ? colors.ink : dashed ? colors.borderInput : colors.borderStrong,
+    borderColor: active ? colors.ink : colors.borderStrong,
     backgroundColor: colors.surface,
   });
 
@@ -59,7 +60,7 @@ export function SnoozePanel({
       })}
       <Pressable accessibilityRole="button" accessibilityState={{ selected: custom }} onPress={() => setCustom(true)} style={row(custom, true)}>
         <T style={{ fontFamily: fonts.medium }}>Pick a date…</T>
-        <T v="muted">📅</T>
+        <Ionicons name="calendar-outline" size={18} color={colors.muted} />
       </Pressable>
       {custom ? (
         <Field

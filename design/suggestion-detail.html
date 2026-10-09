@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lumo – Suggestion detail mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* Tokens match the Figma refresh (Today / Calendar / Plans / Inbox / Profile). */
+  :root {
+    --ink: #1E1A3C; --bg: #FFF8F2; --surface: #fff; --muted: #6B6580; --subtle: #9A94AD;
+    --border: #F0E6DD; --coral: #FF5A3C; --amber: #FF9F43; --violet: #6D3FE0; --indigo: #2B1F6B;
+    --brand: linear-gradient(135deg, var(--coral), var(--amber));
+    --hero: linear-gradient(135deg, var(--indigo), var(--violet));
+    --cat-bg: #FFE4DC; --cat-ink: #C2391A; --cat-dot: #FF5A3C;   /* WEEKEND; swap per category */
+    --shadow: 0 8px 24px rgba(75, 43, 216, .07);
+    --heading: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+    --body: 'DM Sans', system-ui, sans-serif;
+  }
+  .cat-daily   { --cat-bg: #DDF5F0; --cat-ink: #0B7A6B; --cat-dot: #12B3A0; }
+  .cat-monthly { --cat-bg: #E9E1FF; --cat-ink: #5B2FD0; --cat-dot: #7C4DFF; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: var(--heading); margin: 0; }
+  button { font: inherit; cursor: pointer; }
+  svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  /* ---------- top nav ---------- */
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 18px max(24px, calc((100% - 1280px) / 2)); background: #fff; border-bottom: 1px solid var(--border); }
+  .logo { display: flex; align-items: center; gap: 10px; font: 800 26px var(--heading); }
+  .logo i { width: 36px; height: 36px; border-radius: 12px; background: var(--brand); display: grid; place-items: center; color: #fff; font-size: 20px; }
+  .links { display: flex; gap: 6px; }
+  .links a { display: flex; gap: 8px; align-items: center; padding: 10px 16px; border-radius: 999px; color: var(--muted); font-weight: 500; text-decoration: none; }
+  .links a.on { background: var(--ink); color: #fff; font-weight: 700; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--hero); color: #fff; display: grid; place-items: center; font-weight: 700; }
+
+  /* ---------- page ---------- */
+  .page { max-width: 1280px; margin: 0 auto; padding: 28px 24px 120px; }
+  .back { display: inline-flex; align-items: center; gap: 8px; padding: 10px 0; font-weight: 500; color: var(--ink); text-decoration: none; margin-bottom: 8px; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 32px; align-items: start; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; box-shadow: var(--shadow); overflow: hidden; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--cat-bg); color: var(--cat-ink); font: 700 11px var(--body); letter-spacing: .06em; }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cat-dot); }
+
+  /* date header: ticket-stub feel, dashed tear line */
+  .head { position: relative; padding: 28px 32px 32px; background: var(--cat-bg); color: var(--cat-ink); display: grid; gap: 10px; border-bottom: 2px dashed #fff; }
+  .head .when { font: 800 64px/1 var(--heading); letter-spacing: -.03em; }
+  .head .sub { font-weight: 700; }
+  .head .glow { position: absolute; right: -60px; top: -80px; width: 260px; height: 260px; border-radius: 50%; background: var(--cat-dot); opacity: .12; }
+  .head .badge { position: absolute; right: 28px; top: 28px; width: 56px; height: 56px; border-radius: 18px; background: #fff; display: grid; place-items: center; font-size: 26px; box-shadow: 0 6px 16px rgba(0,0,0,.08); }
+
+  .body { padding: 32px; display: grid; gap: 22px; }
+  .body h1 { font-size: 42px; line-height: 1.08; font-weight: 800; letter-spacing: -.02em; }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .fact { background: #FFFBF7; border: 1px solid var(--border); border-radius: 18px; padding: 14px 16px; display: grid; gap: 4px; }
+  .fact .k { display: flex; gap: 6px; align-items: center; font: 700 11px var(--body); letter-spacing: .12em; color: var(--subtle); }
+  .fact .v { font-weight: 700; }
+  .desc { font-size: 17px; line-height: 1.6; margin: 0; }
+  .why { border: 1px solid #FFD3B8; background: #FFF3E8; border-radius: 18px; padding: 16px 18px; display: grid; gap: 6px; }
+  .why .k { display: flex; gap: 6px; align-items: center; font: 700 11px var(--body); letter-spacing: .12em; color: var(--coral); }
+
+  label.field { display: grid; gap: 6px; font: 700 12px var(--body); color: var(--muted); }
+  textarea { font: 400 15px/1.5 var(--body); color: var(--ink); min-height: 88px; padding: 14px 16px; border: 1px solid #E3D8CE; border-radius: 16px; background: #fff; resize: vertical; }
+  textarea:focus { outline: 2px solid var(--coral); outline-offset: 1px; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 24px; border-radius: 999px; border: 1px solid transparent; font-weight: 700; font-size: 15px; }
+  .btn.primary { background: var(--brand); color: #fff; box-shadow: 0 6px 14px rgba(255, 90, 60, .32); }
+  .btn.secondary { background: #fff; color: var(--ink); border-color: var(--border); }
+  .btn.ghost { background: none; color: var(--muted); }
+  .btn:focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; }
+
+  /* ---------- side column ---------- */
+  .side { display: grid; gap: 20px; }
+  .panel { padding: 22px; display: grid; gap: 14px; border-radius: 24px; }
+  .panel h3 { font-size: 20px; }
+  .panel p { margin: 0; color: var(--muted); }
+  .presets { display: grid; gap: 8px; }
+  .preset { display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 14px; border: 1px solid #E3D8CE; background: #fff; font-weight: 500; color: var(--ink); text-align: left; width: 100%; }
+  .preset span:last-child { color: var(--muted); font-size: 14px; }
+  .preset[aria-pressed="true"] { border: 2px solid var(--ink); font-weight: 700; padding: 0 15px; }
+  .preset.dashed { border-style: dashed; }
+  .steps { display: grid; gap: 14px; }
+  .step { display: flex; gap: 12px; align-items: flex-start; }
+  .step b.n { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #F3EAE1; display: grid; place-items: center; font-size: 13px; }
+  .step:first-child b.n { background: var(--ink); color: #fff; }
+  .fit { display: grid; gap: 10px; }
+  .fit .row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; background: #FFFBF7; border: 1px solid var(--border); }
+  .fit .d { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font: 800 18px var(--heading); }
+  .fit .row.free .d { background: #DDF5F0; color: #0B7A6B; }
+  .fit .row.busy .d { background: #FFE4DC; color: #C2391A; }
+  .fit small { color: var(--muted); display: block; }
+  .cal-card { background: var(--hero); color: #fff; border: 0; position: relative; overflow: hidden; }
+  .cal-card p { color: #D9D1FF; }
+  .cal-card::after { content: ""; position: absolute; right: -50px; top: -60px; width: 180px; height: 180px; border-radius: 50%; background: var(--amber); opacity: .2; }
+  .cal-card .btn { background: #fff; color: var(--ink); position: relative; z-index: 1; }
+
+  /* ---------- states strip ---------- */
+  .states { margin-top: 56px; }
+  .states h2 { font-size: 28px; margin-bottom: 4px; }
+  .states > p { color: var(--muted); margin: 0 0 20px; }
+  .state-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .state { padding: 22px; display: grid; gap: 14px; border-radius: 24px; }
+  .outcome { padding: 14px 16px; border-radius: 16px; font-weight: 700; }
+  .outcome.ok { background: #E5F4EC; color: #166534; }
+  .outcome.wish { background: #FFEBDD; color: #A8380B; }
+  .outcome q { display: block; font-weight: 400; margin-top: 4px; }
+  .stars { display: flex; gap: 4px; font-size: 32px; color: var(--amber); }
+  .stars .off { color: #D9CFC4; }
+  .mini-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; font-size: 13px; }
+  .mini-cal span { padding: 7px 0; border-radius: 50%; }
+  .mini-cal .h { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--subtle); padding: 0; }
+  .mini-cal .sel { background: var(--ink); color: #fff; font-weight: 700; }
+  .mini-cal .dim { color: #B9B2C8; }
+
+  /* ---------- mobile: single column, sticky action bar ---------- */
+  .sticky { display: none; }
+  @media (max-width: 960px) {
+    .links { display: none; }
+    .layout { grid-template-columns: 1fr; gap: 20px; }
+    .page { padding: 12px 16px 130px; }
+    .head { padding: 22px 20px 24px; }
+    .head .when { font-size: 46px; }
+    .head .badge { right: 18px; top: 20px; width: 46px; height: 46px; font-size: 22px; }
+    .body { padding: 20px; gap: 18px; }
+    .body h1 { font-size: 32px; }
+    .facts { grid-template-columns: 1fr; }
+    .fact { grid-template-columns: 84px 1fr; align-items: center; }
+    .body .actions { display: none; }
+    .sticky { display: flex; gap: 8px; position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px)); background: rgba(255,255,255,.94); backdrop-filter: blur(10px); border-top: 1px solid var(--border); z-index: 5; }
+    .sticky .btn { padding: 14px 18px; }
+    .sticky .btn.primary { flex: 1; }
+    .nav { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8L20 10.7l-5.8 1.9L12 18.4l-1.9-5.8L4.3 10.7l5.8-1.9z"/><path d="M19 3v4M17 5h4"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14v12H5a2 2 0 0 1-2-2V5"/><circle cx="16" cy="13" r="1"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></symbol>
+</svg>
+
+<header class="nav">
+  <div class="logo"><i><svg><use href="#i-spark"/></svg></i>Lumo</div>
+  <nav class="links" aria-label="Main">
+    <a href="#" class="on">Today</a><a href="#">Calendar</a><a href="#">Plans</a><a href="#">Inbox</a>
+  </nav>
+  <div class="avatar" aria-label="Profile">M</div>
+</header>
+
+<main class="page">
+  <a class="back" href="#"><svg><use href="#i-back"/></svg>Back to today</a>
+
+  <div class="layout">
+    <!-- ===== main card: pending suggestion ===== -->
+    <article class="card">
+      <div class="head">
+        <div class="glow"></div>
+        <div class="badge" aria-hidden="true">🍂</div>
+        <span class="pill">WEEKEND</span>
+        <div class="when">Sat 10 Oct</div>
+        <div class="sub">Suggested Wed 7 Oct</div>
+      </div>
+
+      <div class="body">
+        <h1>Harvest food market</h1>
+
+        <div class="facts">
+          <div class="fact"><span class="k"><svg><use href="#i-clock"/></svg>WHEN</span><span class="v">Sat 10 Oct · 10:00</span></div>
+          <div class="fact"><span class="k"><svg><use href="#i-pin"/></svg>WHERE</span><span class="v">Old Town Square</span></div>
+          <div class="fact"><span class="k"><svg><use href="#i-wallet"/></svg>COST</span><span class="v">Free entry</span></div>
+        </div>
+
+        <p class="desc">Stalls of seasonal produce, fresh bread, local cheese and street food fill the old square every second Saturday of autumn. Go hungry, bring a tote bag and stay for the live acoustic set at noon.</p>
+
+        <div class="why">
+          <span class="k"><svg><use href="#i-spark"/></svg>WHY WE SUGGESTED THIS</span>
+          <span>You saved two food ideas this month and Saturday morning is free.</span>
+        </div>
+
+        <label class="field">Add a note (optional, helps future picks)
+          <textarea placeholder="e.g. Love this, but I'd rather something quieter"></textarea>
+        </label>
+
+        <div class="actions">
+          <button class="btn primary"><svg><use href="#i-check"/></svg>I'm in — add to plans</button>
+          <button class="btn secondary"><svg><use href="#i-bookmark"/></svg>Save to wishlist</button>
+          <button class="btn ghost">Not for me</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- ===== side column ===== -->
+    <aside class="side">
+      <section class="card panel" aria-labelledby="snooze-h">
+        <h3 id="snooze-h">Not now? Snooze it</h3>
+        <p>It leaves your feed and comes back on the day you pick. Nothing else changes.</p>
+        <div class="presets" role="group" aria-label="Snooze until">
+          <button class="preset" aria-pressed="false"><span>Tomorrow</span><span>Thu 8 Oct</span></button>
+          <button class="preset" aria-pressed="true"><span>This weekend</span><span>Fri 9 Oct</span></button>
+          <button class="preset" aria-pressed="false"><span>Next week</span><span>Wed 14 Oct</span></button>
+          <button class="preset dashed" aria-pressed="false"><span>Pick a date…</span><svg><use href="#i-cal"/></svg></button>
+        </div>
+        <button class="btn primary">Snooze to Fri 9 Oct</button>
+      </section>
+
+      <section class="card panel" aria-labelledby="fit-h">
+        <h3 id="fit-h">Does it fit your weekend?</h3>
+        <div class="fit">
+          <div class="row free"><span class="d">10</span><div><b>Sat 10 Oct</b><small>Free all day · this idea</small></div></div>
+          <div class="row busy"><span class="d">11</span><div><b>Sun 11 Oct</b><small>Day hike: Forest ridge trails, 09:00</small></div></div>
+        </div>
+      </section>
+
+      <section class="card panel" aria-labelledby="next-h">
+        <h3 id="next-h">What happens next</h3>
+        <div class="steps">
+          <div class="step"><b class="n">1</b><span><b>I'm in</b> puts it in Plans and your calendar. After the date, you can rate it 1–5 stars.</span></div>
+          <div class="step"><b class="n">2</b><span><b>Wishlist</b> keeps it for later. Plan it any time with a new date.</span></div>
+          <div class="step"><b class="n">3</b><span><b>Not for me</b> tells us to suggest fewer like this.</span></div>
+        </div>
+      </section>
+
+      <section class="card panel cal-card" aria-labelledby="ics-h">
+        <h3 id="ics-h">Add to calendar</h3>
+        <p>Download an .ics file for Apple, Google or Outlook calendar.</p>
+        <button class="btn"><svg><use href="#i-download"/></svg>Download .ics</button>
+      </section>
+    </aside>
+  </div>
+
+  <!-- ===== states after responding ===== -->
+  <section class="states" aria-labelledby="states-h">
+    <h2 id="states-h">After you respond</h2>
+    <p>The same screen once the suggestion is no longer pending.</p>
+    <div class="state-grid">
+      <article class="card state cat-daily">
+        <span class="pill">DAILY</span>
+        <h3>Rooftop yoga &amp; sunrise coffee</h3>
+        <div class="outcome ok">Added to your plans</div>
+        <b>How was it?</b>
+        <div class="stars" role="img" aria-label="4 out of 5 stars">★★★★<span class="off">★</span></div>
+        <p style="margin:0;color:var(--muted)">Your rating shapes future picks.</p>
+      </article>
+
+      <article class="card state">
+        <span class="pill">WEEKEND</span>
+        <h3>Open-air film: Cinema Paradiso</h3>
+        <div class="outcome ok">Added to your plans
+          <q>“Bringing a blanket.”</q>
+        </div>
+        <p style="margin:0;color:var(--muted)">You can rate it after Sat 24 Oct.</p>
+      </article>
+
+      <article class="card state cat-monthly">
+        <span class="pill">MONTHLY</span>
+        <h3>Pottery workshop for beginners</h3>
+        <div class="outcome wish">Saved to your wishlist</div>
+        <b>Plan it for</b>
+        <div class="mini-cal" aria-label="October 2026">
+          <span class="h">M</span><span class="h">T</span><span class="h">W</span><span class="h">T</span><span class="h">F</span><span class="h">S</span><span class="h">S</span>
+          <span class="dim">12</span><span class="dim">13</span><span class="dim">14</span><span>15</span><span>16</span><span>17</span><span class="sel">18</span>
+        </div>
+        <button class="btn primary">Plan it · Sun 18 Oct</button>
+      </article>
+    </div>
+  </section>
+</main>
+
+<!-- mobile: actions stick to the bottom so the decision is always one tap away -->
+<div class="sticky" role="group" aria-label="Respond">
+  <button class="btn primary"><svg><use href="#i-check"/></svg>I'm in</button>
+  <button class="btn secondary" aria-label="Save to wishlist"><svg><use href="#i-bookmark"/></svg></button>
+  <button class="btn ghost">Not for me</button>
+</div>
+
+<script>
+  // Snooze presets behave like a radio group in the mockup.
+  const presets = document.querySelectorAll('.preset');
+  presets.forEach(p => p.addEventListener('click', () => {
+    presets.forEach(o => o.setAttribute('aria-pressed', String(o === p)));
+  }));
+</script>
+</body>
+</html>

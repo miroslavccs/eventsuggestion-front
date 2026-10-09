@@ -29,13 +29,13 @@ export function StarRating({
               height: 44,
               borderRadius: 12,
               borderWidth: 1,
-              borderColor: on ? colors.accent : colors.border,
+              borderColor: on ? colors.accentBorder : colors.border,
               backgroundColor: on ? colors.accentSoft : colors.surface,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <T style={{ fontSize: 20, color: on ? colors.accent : colors.subtle }}>{on ? '★' : '☆'}</T>
+            <T style={{ fontSize: 20, color: on ? colors.amber : colors.subtle }}>{on ? '★' : '☆'}</T>
           </Pressable>
         );
       })}

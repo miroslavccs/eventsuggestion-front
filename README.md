@@ -1,7 +1,8 @@
 # Lumo: eventsuggestion client (iOS, Android, web)
 
 One [Expo](https://expo.dev) app (SDK 57, Expo Router, TypeScript) for the
-[eventsuggestion](../eventsuggestion) backend, built from the "Event Suggestion Mockups" design.
+[eventsuggestion](../eventsuggestion) backend, built from the "Lumo – Improved Mockups" Figma design
+(warm cream canvas, indigo ink, coral→amber primary; the suggestion detail screen is also in `design/suggestion-detail.html`).
 Wide screens (web, 900px and up) get the desktop layout with a top nav and side panels; phones get a bottom tab bar.
 
 ## Screens
@@ -11,7 +12,8 @@ Wide screens (web, 900px and up) get the desktop layout with a top nav and side 
 | Sign in / 3-step sign up (account, about you, interests) | `(auth)/login`, `(auth)/register` | `POST /api/auth/login`, `/register` |
 | Today feed, category filter, "I'm in / Save for later / Not for me", Generate now | `(app)/index` | `GET /api/suggestions`, `PUT .../feedback`, `POST .../generate` |
 | Suggestion detail, note, snooze | `(app)/suggestion/[id]` | `PUT .../feedback`, `.../snooze`, `.../read` |
-| Plans: upcoming, wishlist (plan it), past, 1-5 star rating | `(app)/plans` | `PUT .../plan`, `.../rating` |
+| Calendar: month grid (Month / List), selected-day agenda, free weekend days | `(app)/calendar` | `GET /api/suggestions` (no new endpoint) |
+| Plans: upcoming, wishlist (plan it with a calendar date picker), past, 1-5 star rating | `(app)/plans` | `PUT .../plan`, `.../rating` |
 | Inbox | `(app)/inbox` | `GET /api/suggestions/notifications` |
 | Profile: vacation mode, per-category pause, interests, details, what we've learned | `(app)/profile` | `GET/PUT /api/customers/me` |
 
@@ -43,9 +45,12 @@ npm run lint
 - The API has no time of day, so cards show the date only.
 - Snooze, date and plan inputs use a `YYYY-MM-DD` text field for "Pick a date…". Date of birth is entered as `DD.MM.YYYY` and sent as `age`, because that is what the backend stores.
 - There is no undo for feedback in the API, so the mobile mockup's "Undo" is not built.
-- The web top nav has Today and Plans; Wishlist and History from the mockup are tabs inside Plans.
+- The top nav (web) and tab bar (phones) have Today, Calendar, Plans, Inbox and Profile; Wishlist and History from the mockup are tabs inside Plans.
+- The calendar shows accepted plans and open (not snoozed) ideas that have a date. Rejected ideas and wishlist items are not on it until they are planned. "Free time" is the Fri/Sat/Sun of the coming week with no accepted plan.
 - Calendar export (.ics) is a "coming soon" card, as in the mockup.
+- Gradients use no extra package: `gradient()` in `src/theme/tokens.ts` returns CSS `backgroundImage` on web and React Native's `experimental_backgroundImage` on native, with the first colour as a solid fallback. The native path has not been run on a device or simulator yet, only web.
+- The weather chip, "Export .ics" and the Week calendar view from the mockups are not built (no data / endpoint for them).
 
 ## Layout
 
-`src/app` routes only; `src/api` typed client and React Query hooks; `src/auth` token storage (SecureStore on native, localStorage on web) and session; `src/lib` pure logic (dates, feed and plan rules, validation); `src/components` UI; `src/theme` design tokens from the mockup.
+`src/app` routes only; `src/api` typed client and React Query hooks; `src/auth` token storage (SecureStore on native, localStorage on web) and session; `src/lib` pure logic (dates, feed and plan rules, validation); `src/components` UI (`month-grid` is the shared calendar/date picker, `auth-shell` the sign-in frame); `src/theme` design tokens from the mockup.

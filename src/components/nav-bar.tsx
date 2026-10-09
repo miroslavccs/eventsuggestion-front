@@ -5,18 +5,18 @@ import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useNotifications, useProfile } from '@/api/hooks';
-import { useGenerateNow } from '@/hooks/use-generate-now';
 import { useIsWide } from '@/hooks/use-is-wide';
-import { colors, fonts, radius } from '@/theme/tokens';
-import { Button, T } from './ui';
+import { colors, fonts, gradient, gradientStops, radius } from '@/theme/tokens';
+import { T } from './ui';
 
 type BottomTabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
 const TABS: { name: string; label: string; icon: IconName; iconOn: IconName }[] = [
-  { name: 'index', label: 'Today', icon: 'sunny-outline', iconOn: 'sunny' },
-  { name: 'plans', label: 'Plans', icon: 'calendar-outline', iconOn: 'calendar' },
-  { name: 'inbox', label: 'Inbox', icon: 'notifications-outline', iconOn: 'notifications' },
+  { name: 'index', label: 'Today', icon: 'home-outline', iconOn: 'home' },
+  { name: 'calendar', label: 'Calendar', icon: 'calendar-outline', iconOn: 'calendar' },
+  { name: 'plans', label: 'Plans', icon: 'bookmark-outline', iconOn: 'bookmark' },
+  { name: 'inbox', label: 'Inbox', icon: 'file-tray-outline', iconOn: 'file-tray' },
   { name: 'profile', label: 'Profile', icon: 'person-outline', iconOn: 'person' },
 ];
 
@@ -25,9 +25,9 @@ function Badge({ count }: { count: number }) {
   return (
     <View
       accessibilityLabel={`${count} unread`}
-      style={{ position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: 9, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}
+      style={{ position: 'absolute', top: -4, right: -4, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: 9, backgroundColor: colors.accent, borderWidth: 2, borderColor: colors.surface, alignItems: 'center', justifyContent: 'center' }}
     >
-      <T style={{ fontFamily: fonts.bold, fontSize: 11, color: '#fff' }}>{count}</T>
+      <T style={{ fontFamily: fonts.bold, fontSize: 10, color: '#fff' }}>{count}</T>
     </View>
   );
 }
@@ -35,10 +35,10 @@ function Badge({ count }: { count: number }) {
 function Logo() {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-      <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}>
-        <Ionicons name="ticket-outline" size={18} color="#fff" />
+      <View style={[{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, gradient(gradientStops.brand)]}>
+        <Ionicons name="sparkles" size={19} color="#fff" />
       </View>
-      <T style={{ fontFamily: fonts.heading, fontSize: 22, letterSpacing: -0.4 }}>Lumo</T>
+      <T style={{ fontFamily: fonts.headingXL, fontSize: 26, letterSpacing: -0.6 }}>Lumo</T>
     </View>
   );
 }
@@ -48,7 +48,6 @@ export function NavBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const unread = useNotifications().data?.filter((s) => !s.notificationRead).length ?? 0;
   const initial = useProfile().data?.firstName?.[0]?.toUpperCase() ?? '·';
-  const gen = useGenerateNow();
   const activeName = state.routes[state.index]?.name ?? 'index';
   // The suggestion detail route lives inside the tabs but belongs to Today.
   const current = activeName.startsWith('suggestion') ? 'index' : activeName;
@@ -67,8 +66,8 @@ export function NavBar({ state, navigation }: BottomTabBarProps) {
           <Pressable accessibilityRole="link" accessibilityLabel="Lumo, go to Today" onPress={() => go('index')}>
             <Logo />
           </Pressable>
-          <View style={{ flex: 1, flexDirection: 'row', gap: 4 }}>
-            {TABS.filter((t) => t.name === 'index' || t.name === 'plans').map((t) => {
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
+            {TABS.filter((t) => t.name !== 'profile').map((t) => {
               const on = current === t.name;
               return (
                 <Pressable
@@ -76,26 +75,19 @@ export function NavBar({ state, navigation }: BottomTabBarProps) {
                   accessibilityRole="link"
                   accessibilityState={{ selected: on }}
                   onPress={() => go(t.name)}
-                  style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.pill, backgroundColor: on ? colors.ink : 'transparent' }}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: radius.pill, backgroundColor: on ? colors.ink : 'transparent' }}
                 >
-                  <T style={{ fontFamily: fonts.medium, color: on ? '#fff' : colors.ink }}>{t.label}</T>
+                  <Ionicons name={on ? t.iconOn : t.icon} size={16} color={on ? '#fff' : colors.muted} />
+                  <T style={{ fontFamily: on ? fonts.bold : fonts.medium, color: on ? '#fff' : colors.muted }}>{t.label}</T>
                 </Pressable>
               );
             })}
           </View>
-          <Button
-            label="Generate now"
-            variant="secondary"
-            loading={gen.pending}
-            disabled={gen.disabled}
-            onPress={gen.run}
-            icon={<Ionicons name="refresh" size={16} color={colors.ink} />}
-          />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Notifications, ${unread} unread`}
             onPress={() => go('inbox')}
-            style={{ width: 44, height: 44, borderRadius: 22, borderWidth: 1, borderColor: colors.borderStrong, alignItems: 'center', justifyContent: 'center' }}
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.track, alignItems: 'center', justifyContent: 'center' }}
           >
             <Ionicons name="notifications-outline" size={18} color={colors.ink} />
             <Badge count={unread} />
@@ -103,8 +95,12 @@ export function NavBar({ state, navigation }: BottomTabBarProps) {
           <Pressable
             accessibilityRole="link"
             accessibilityLabel="Profile"
+            accessibilityState={{ selected: current === 'profile' }}
             onPress={() => go('profile')}
-            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: current === 'profile' ? colors.accent : colors.ink, alignItems: 'center', justifyContent: 'center' }}
+            style={[
+              { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: current === 'profile' ? colors.accent : 'transparent' },
+              gradient(gradientStops.hero),
+            ]}
           >
             <T style={{ fontFamily: fonts.bold, color: '#fff' }}>{initial}</T>
           </Pressable>
@@ -114,7 +110,7 @@ export function NavBar({ state, navigation }: BottomTabBarProps) {
   }
 
   return (
-    <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, 8), paddingTop: 8 }}>
+    <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, 8), paddingTop: 8, paddingHorizontal: 4 }}>
       {TABS.map((t) => {
         const on = current === t.name;
         return (
@@ -124,13 +120,13 @@ export function NavBar({ state, navigation }: BottomTabBarProps) {
             accessibilityLabel={t.label}
             accessibilityState={{ selected: on }}
             onPress={() => go(t.name)}
-            style={{ flex: 1, alignItems: 'center', gap: 2, minHeight: 48, justifyContent: 'center' }}
+            style={{ flex: 1, alignItems: 'center', gap: 4, minHeight: 52, justifyContent: 'center' }}
           >
-            <View>
-              <Ionicons name={on ? t.iconOn : t.icon} size={22} color={on ? colors.ink : colors.subtle} />
+            <View style={[{ width: 52, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }, on ? gradient(gradientStops.brand) : null]}>
+              <Ionicons name={on ? t.iconOn : t.icon} size={18} color={on ? '#fff' : colors.muted} />
               {t.name === 'inbox' ? <Badge count={unread} /> : null}
             </View>
-            <T style={{ fontFamily: on ? fonts.bold : fonts.medium, fontSize: 11, color: on ? colors.ink : colors.subtle }}>{t.label}</T>
+            <T style={{ fontFamily: on ? fonts.bold : fonts.medium, fontSize: 11, color: on ? colors.accent : colors.muted }}>{t.label}</T>
           </Pressable>
         );
       })}

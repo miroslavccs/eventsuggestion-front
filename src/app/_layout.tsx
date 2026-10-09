@@ -1,5 +1,6 @@
 import {
   BricolageGrotesque_700Bold,
+  BricolageGrotesque_800ExtraBold,
   useFonts as useBricolage,
 } from '@expo-google-fonts/bricolage-grotesque';
 import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold, useFonts as useDmSans } from '@expo-google-fonts/dm-sans';
@@ -17,7 +18,7 @@ void SplashScreen.preventAutoHideAsync();
 
 function RootStack() {
   const { ready, signedIn } = useAuth();
-  const [brico] = useBricolage({ BricolageGrotesque_700Bold });
+  const [brico] = useBricolage({ BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold });
   const [dm] = useDmSans({ DMSans_400Regular, DMSans_500Medium, DMSans_700Bold });
   const loaded = ready && brico && dm;
 

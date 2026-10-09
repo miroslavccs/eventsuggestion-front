@@ -4,15 +4,18 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { useFeedback, useProfile, useSuggestions } from '@/api/hooks';
 import type { Suggestion, SuggestionCategory } from '@/api/types';
+import { FreeTimeCard, WeekStrip } from '@/components/calendar-cards';
 import { SideCards } from '@/components/side-cards';
 import { Screen } from '@/components/screen';
 import { SuggestionCard } from '@/components/suggestion-card';
-import { Button, Chip, EmptyState, ErrorBanner, T } from '@/components/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { Button, Chip, EmptyState, ErrorBanner, Hero, T } from '@/components/ui';
 import { useGenerateNow } from '@/hooks/use-generate-now';
 import { useIsWide } from '@/hooks/use-is-wide';
+import { eventsByDate, freeTime, planStats } from '@/lib/calendar';
 import { shortDate, toIso } from '@/lib/dates';
 import { countByCategory, feedItems, nextSnoozeEnd, snoozedItems } from '@/lib/suggestions';
-import { colors, doneColors } from '@/theme/tokens';
+import { categoryColors, colors, doneColors, fonts, radius } from '@/theme/tokens';
 
 type Filter = 'ALL' | SuggestionCategory;
 
@@ -38,6 +41,9 @@ export default function Today() {
   const snoozed = snoozedItems(all, today);
   const snoozeEnd = nextSnoozeEnd(snoozed);
   const visible = items.filter((s) => filter === 'ALL' || s.category === filter);
+  const events = useMemo(() => eventsByDate(all, today), [all, today]);
+  const free = useMemo(() => freeTime(all, today), [all, today]);
+  const planned = useMemo(() => planStats(all, today).planned, [all, today]);
 
   const act = (s: Suggestion, status: keyof typeof doneColors) =>
     feedback.mutate({ id: s.id, status }, { onSuccess: () => setDone((d) => ({ ...d, [s.id]: status })) });
@@ -48,28 +54,40 @@ export default function Today() {
 
   const feed = (
     <View style={{ flex: wide ? 999 : undefined, minWidth: 0, gap: 20 }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12 }}>
-        <View style={{ flexShrink: 1 }}>
-          <T v="small">{shortDate(today)}</T>
-          <T v="h1" style={wide ? { fontSize: 44, lineHeight: 46 } : undefined}>
-            {greeting}{name ? `, ${name}` : ''}.{'\n'}
-            {pending.length === 0 ? 'Nothing new yet.' : `${pending.length} new idea${pending.length === 1 ? '' : 's'} for you.`}
-          </T>
+      <Hero style={{ padding: wide ? 36 : 22 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <T v="label" style={{ color: '#FFD9B8' }}>{shortDate(today).toUpperCase()}</T>
+          {snoozed.length > 0 && snoozeEnd ? (
+            <View style={{ backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 }}>
+              <T v="small" style={{ color: colors.indigo, fontFamily: fonts.bold, fontSize: 12 }}>{snoozed.length} snoozed until {shortDate(snoozeEnd)}</T>
+            </View>
+          ) : null}
         </View>
-        {snoozed.length > 0 && snoozeEnd ? (
-          <View style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 }}>
-            <T v="small">{snoozed.length} snoozed until {shortDate(snoozeEnd)}</T>
+        <T v="h1" style={{ color: '#fff', fontSize: wide ? 46 : 30, lineHeight: wide ? 50 : 34 }}>
+          {greeting}{name ? `, ${name}` : ''}.{'\n'}
+          {pending.length === 0 ? 'Nothing new yet.' : `${pending.length} new idea${pending.length === 1 ? '' : 's'} for you.`}
+        </T>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12 }}>
+          <Button label="Generate now" variant="light" onPress={gen.run} loading={gen.pending} disabled={gen.disabled} icon={<Ionicons name="sparkles" size={16} color={colors.ink} />} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: radius.pill, paddingHorizontal: 16, height: 44 }}>
+            <Ionicons name="calendar-outline" size={16} color="#fff" />
+            <T style={{ color: '#fff', fontFamily: fonts.medium, fontSize: 14 }}>
+              {planned} planned{free.days.length > 0 ? ` · ${free.days.length} free weekend day${free.days.length === 1 ? '' : 's'}` : ''}
+            </T>
           </View>
-        ) : null}
-      </View>
+        </View>
+      </Hero>
+
+      {!wide ? <WeekStrip today={today} events={events} /> : null}
 
       <View accessibilityLabel="Filter by category" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
         <Chip label={`All · ${counts.ALL}`} selected={filter === 'ALL'} onPress={() => setFilter('ALL')} />
-        <Chip label={`Daily · ${counts.DAILY}`} selected={filter === 'DAILY'} onPress={() => setFilter('DAILY')} />
-        <Chip label={`Weekend · ${counts.WEEKEND}`} selected={filter === 'WEEKEND'} onPress={() => setFilter('WEEKEND')} />
-        <Chip label={`Monthly · ${counts.MONTHLY}`} selected={filter === 'MONTHLY'} onPress={() => setFilter('MONTHLY')} />
+        <Chip label={`Daily · ${counts.DAILY}`} dot={categoryColors.DAILY.dot} selected={filter === 'DAILY'} onPress={() => setFilter('DAILY')} />
+        <Chip label={`Weekend · ${counts.WEEKEND}`} dot={categoryColors.WEEKEND.dot} selected={filter === 'WEEKEND'} onPress={() => setFilter('WEEKEND')} />
+        <Chip label={`Monthly · ${counts.MONTHLY}`} dot={categoryColors.MONTHLY.dot} selected={filter === 'MONTHLY'} onPress={() => setFilter('MONTHLY')} />
       </View>
 
+      {!wide ? <FreeTimeCard free={free} /> : null}
       <ErrorBanner message={(error as Error | null)?.message ?? feedback.error?.message ?? gen.error} />
       {gen.pending ? (
         <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
@@ -92,7 +110,7 @@ export default function Today() {
           if (outcome) {
             const c = doneColors[outcome];
             return (
-              <View key={s.id} style={{ backgroundColor: c.bg, borderRadius: 20, padding: 20, gap: 4 }}>
+              <View key={s.id} style={{ backgroundColor: c.bg, borderRadius: radius.card, padding: 20, gap: 4 }}>
                 <T v="strong" style={{ color: c.ink }}>{s.title}</T>
                 <T style={{ color: c.ink }}>{c.text}</T>
               </View>

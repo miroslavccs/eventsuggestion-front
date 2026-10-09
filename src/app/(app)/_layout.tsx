@@ -12,6 +12,7 @@ export default function AppLayout() {
       screenOptions={{ headerShown: false, tabBarPosition: wide ? 'top' : 'bottom' }}
     >
       <Tabs.Screen name="index" />
+      <Tabs.Screen name="calendar" />
       <Tabs.Screen name="plans" />
       <Tabs.Screen name="inbox" />
       <Tabs.Screen name="profile" />
